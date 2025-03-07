@@ -2,7 +2,7 @@
 
 A Bloomberg Terminal-inspired stock trading game where you try to make as much money as possible in 40 days.
 
-![YOLO Terminal](https://github.com/yourusername/yolo_term/raw/main/screenshots/yolo_terminal.png)
+![YOLO Terminal](https://github.com/phunterlau/yolo_term/blob/main/screenshots/screenshot.png)
 
 ## Overview
 
