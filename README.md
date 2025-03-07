@@ -1,23 +1,24 @@
 # YOLO Terminal
 
-A Bloomberg Terminal-inspired stock trading game where you try to make as much money as possible in 40 days.
+A wallstreetbets-inspired stock trading game where you try to make as much money as possible in 40 days.
 
 ![YOLO Terminal](https://github.com/phunterlau/yolo_term/blob/main/screenshots/screenshot.png)
 
 ## Overview
 
-YOLO Terminal is a text-based stock trading simulation game with a retro Bloomberg Terminal aesthetic. You start as a college student with $2000 in cash and $5000 in student loan debt. Your goal is to trade stocks, manage your finances, and make as much money as possible within 40 days.
+YOLO Terminal is a text-based stock trading simulation game inspired by the risk-taking culture of Reddit's r/wallstreetbets community. You start as a college student with $2000 in cash and $5000 in student loan debt. Your goal is to trade stocks, manage your finances, and make as much money as possible within 40 days - or go broke trying!
 
 ## Features
 
-- **Bloomberg Terminal-inspired UI**: Experience the nostalgic feel of a financial terminal with a blue-on-black interface
+- **Retro Terminal UI**: Experience the thrill of trading with a nostalgic blue-on-black terminal interface
+- **YOLO Trading**: Take big risks for big rewards, just like the wallstreetbets community
 - **Dynamic Stock Market**: Stock prices fluctuate daily based on market conditions and random events
 - **Portfolio Management**: Buy and sell stocks to build your portfolio
 - **Multiple Locations**: Visit the Bank, Hospital, Trading App, Darkweb, and more
 - **Random Events**: Experience unexpected market shifts, health issues, and financial opportunities
 - **Health & Reputation System**: Manage your health and reputation alongside your finances
 - **Hilarious News Headlines**: Stay entertained with over 150 humorous headlines that appear throughout gameplay
-- **High Score System**: Compete to achieve the highest net worth
+- **High Score System**: Compete to achieve the highest net worth (or most spectacular loss)
 
 ## Installation
 
@@ -107,6 +108,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Acknowledgments
 
-- Inspired by Bloomberg Terminal and financial trading systems
+- Inspired by Reddit's r/wallstreetbets community and their "YOLO" trading culture
 - Created for entertainment and educational purposes only
 - Special thanks to all contributors and testers
+- This is not financial advice!
