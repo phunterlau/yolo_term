@@ -744,3 +744,5 @@ class UI:
             default=False,
             style=self.style
         ).ask()
+        
+        return result if result is not None else False
