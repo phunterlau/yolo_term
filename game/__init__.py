@@ -1,0 +1,3 @@
+"""
+Yolo Terminal game package.
+"""
