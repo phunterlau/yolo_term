@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YOLO Terminal</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Welcome Screen -->
+        <div id="welcome-screen" class="screen">
+            <div class="terminal-window">
+                <div class="terminal-header">
+                    <h1>YOLO TERMINAL</h1>
+                </div>
+                <div class="terminal-content">
+                    <div class="welcome-message">
+                        <p>Welcome to Yolo Terminal! This is a game about stock trading and making money.</p>
+                        <p>You have 40 days to trade stocks and make as much money as possible.</p>
+                        <p>Watch your health and reputation, as they will affect your gameplay.</p>
+                        <p>Good luck!</p>
+                    </div>
+                    <div class="player-name-input">
+                        <label for="player-name">Enter your name (max 10 letters):</label>
+                        <input type="text" id="player-name" maxlength="10" value="Trader">
+                        <button id="start-game-btn">Start Game</button>
+                    </div>
+                    <div class="view-story">
+                        <button id="view-story-btn">View Game Backstory</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Story Screen -->
+        <div id="story-screen" class="screen hidden">
+            <div class="terminal-window">
+                <div class="terminal-header">
+                    <h1>BACKSTORY</h1>
+                </div>
+                <div class="terminal-content">
+                    <div class="story-content">
+                        <p>You're a college student with $2000 in cash and $5000 in student loan debt.</p>
+                        <p>You've decided to try your hand at stock trading to pay off your debt and make as much money as possible in 40 days.</p>
+                        <p>Each day, you'll have the opportunity to buy and sell various stocks, but be careful - the market is volatile and full of unexpected events.</p>
+                        <p>Can you survive in this high-stakes world and come out ahead?</p>
+                    </div>
+                    <button id="back-to-welcome-btn">Back to Welcome</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="screen hidden">
+            <div class="terminal-window">
+                <!-- Status Board -->
+                <div class="status-board">
+                    <div class="terminal-header">
+                        <h1>YOLO TERMINAL</h1>
+                    </div>
+                    <div class="status-content">
+                        <div class="status-row">
+                            <span>Trader: <span id="player-name-display"></span></span>
+                            <span>Days Left: <span id="days-left"></span>/40</span>
+                            <span id="current-day"></span>
+                        </div>
+                        <div class="status-row">
+                            <span>Cash: $<span id="cash"></span></span>
+                            <span>Bank: $<span id="bank-savings"></span></span>
+                            <span>Debt: $<span id="debt"></span></span>
+                        </div>
+                        <div class="status-row">
+                            <span>Health: <span id="health"></span>/100</span>
+                            <span>Rep: <span id="fame"></span>/100</span>
+                            <span>Portfolio: <span id="portfolio-used"></span>/<span id="portfolio-capacity"></span></span>
+                        </div>
+                        <div id="portfolio-display" class="portfolio-display">
+                            <div class="portfolio-header">Portfolio:</div>
+                            <div id="portfolio-items" class="portfolio-items"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Headline -->
+                <div id="headline" class="headline"></div>
+
+                <!-- Main Content Area -->
+                <div class="main-content">
+                    <!-- Message Display -->
+                    <div id="message-display" class="message-display"></div>
+
+                    <!-- News Reports -->
+                    <div id="news-reports" class="news-reports hidden">
+                        <div class="news-header">NEWS FEED</div>
+                        <div id="news-content" class="news-content"></div>
+                        <button id="close-news-btn" class="action-btn">Continue</button>
+                    </div>
+
+                    <!-- Available Stocks -->
+                    <div id="available-stocks" class="available-stocks hidden">
+                        <div class="stocks-header">Available Stocks:</div>
+                        <div id="stocks-list" class="stocks-list"></div>
+                        <button id="close-stocks-btn" class="action-btn">Continue</button>
+                    </div>
+
+                    <!-- Main Menu -->
+                    <div id="main-menu" class="main-menu">
+                        <div class="menu-header">Main Menu:</div>
+                        <div class="menu-options">
+                            <button class="menu-btn" data-action="next_day">Next Day</button>
+                            <button class="menu-btn" data-action="buy">Buy Stocks</button>
+                            <button class="menu-btn" data-action="sell">Sell Stocks</button>
+                            <button class="menu-btn" data-action="bank">Visit Bank</button>
+                            <button class="menu-btn" data-action="hospital">Visit Hospital</button>
+                            <button class="menu-btn" data-action="broker">Visit Student Loan Broker</button>
+                            <button class="menu-btn" data-action="trading_app">Robinwood Trading App</button>
+                            <button class="menu-btn" data-action="darkweb">Darkweb Hacking Facility</button>
+                            <button class="menu-btn" data-action="high_scores">View Leaderboard</button>
+                            <button class="menu-btn" data-action="help">Help</button>
+                            <button class="menu-btn" data-action="quit">Quit Game</button>
+                        </div>
+                    </div>
+
+                    <!-- Buy Stocks -->
+                    <div id="buy-stocks" class="action-screen hidden">
+                        <div class="action-header">Buy Stocks</div>
+                        <div id="buy-stocks-list" class="action-content"></div>
+                        <div class="buy-controls hidden">
+                            <label for="buy-amount">Amount:</label>
+                            <input type="number" id="buy-amount" min="1" value="1">
+                            <button id="max-buy-btn" class="action-btn">Max</button>
+                            <button id="confirm-buy-btn" class="action-btn">Confirm</button>
+                            <button id="cancel-buy-btn" class="action-btn">Cancel</button>
+                        </div>
+                        <button id="back-from-buy-btn" class="action-btn">Back to Main Menu</button>
+                    </div>
+
+                    <!-- Sell Stocks -->
+                    <div id="sell-stocks" class="action-screen hidden">
+                        <div class="action-header">Sell Stocks</div>
+                        <div id="sell-stocks-list" class="action-content"></div>
+                        <div class="sell-controls hidden">
+                            <label for="sell-amount">Amount:</label>
+                            <input type="number" id="sell-amount" min="1" value="1">
+                            <button id="max-sell-btn" class="action-btn">Max</button>
+                            <button id="confirm-sell-btn" class="action-btn">Confirm</button>
+                            <button id="cancel-sell-btn" class="action-btn">Cancel</button>
+                        </div>
+                        <button id="back-from-sell-btn" class="action-btn">Back to Main Menu</button>
+                    </div>
+
+                    <!-- Bank -->
+                    <div id="bank" class="action-screen hidden">
+                        <div class="action-header">Bank</div>
+                        <div class="action-content">
+                            <p>Welcome to the Bank. What would you like to do?</p>
+                            <div class="bank-actions">
+                                <div class="bank-action">
+                                    <h3>Deposit Money</h3>
+                                    <p>Current Cash: $<span id="bank-cash"></span></p>
+                                    <label for="deposit-amount">Amount to Deposit:</label>
+                                    <input type="number" id="deposit-amount" min="1" value="100">
+                                    <button id="deposit-btn" class="action-btn">Deposit</button>
+                                </div>
+                                <div class="bank-action">
+                                    <h3>Withdraw Money</h3>
+                                    <p>Current Savings: $<span id="bank-savings-display"></span></p>
+                                    <label for="withdraw-amount">Amount to Withdraw:</label>
+                                    <input type="number" id="withdraw-amount" min="1" value="100">
+                                    <button id="withdraw-btn" class="action-btn">Withdraw</button>
+                                </div>
+                                <div class="bank-action">
+                                    <h3>Repay Loan</h3>
+                                    <p>Current Debt: $<span id="bank-debt"></span></p>
+                                    <label for="repay-amount">Amount to Repay:</label>
+                                    <input type="number" id="repay-amount" min="1" value="100">
+                                    <button id="repay-btn" class="action-btn">Repay</button>
+                                </div>
+                            </div>
+                        </div>
+                        <button id="back-from-bank-btn" class="action-btn">Back to Main Menu</button>
+                    </div>
+
+                    <!-- Hospital -->
+                    <div id="hospital" class="action-screen hidden">
+                        <div class="action-header">Hospital</div>
+                        <div class="action-content">
+                            <p>Welcome to the Hospital. Your current health is <span id="hospital-health"></span>/100.</p>
+                            <p>There is a $200 copay, plus $10,000 per health point to restore your health.</p>
+                            <p>To fully restore your health, you need to pay $<span id="hospital-cost"></span>.</p>
+                            <button id="heal-btn" class="action-btn">Heal ($<span id="heal-cost"></span>)</button>
+                        </div>
+                        <button id="back-from-hospital-btn" class="action-btn">Back to Main Menu</button>
+                    </div>
+
+                    <!-- Broker -->
+                    <div id="broker" class="action-screen hidden">
+                        <div class="action-header">Student Loan Broker</div>
+                        <div class="action-content">
+                            <p>Welcome to the Student Loan Broker. Your current debt is $<span id="broker-debt"></span>.</p>
+                            <p>You can repay your student loan debt here.</p>
+                            <label for="broker-repay-amount">Amount to Repay:</label>
+                            <input type="number" id="broker-repay-amount" min="1" value="100">
+                            <button id="broker-repay-btn" class="action-btn">Repay</button>
+                        </div>
+                        <button id="back-from-broker-btn" class="action-btn">Back to Main Menu</button>
+                    </div>
+
+                    <!-- Trading App -->
+                    <div id="trading-app" class="action-screen hidden">
+                        <div class="action-header">Robinwood Trading App</div>
+                        <div class="action-content">
+                            <p>Welcome to the Robinwood Trading App.</p>
+                            <p>Your current trade book capacity is <span id="trading-app-capacity"></span>.</p>
+                            <p>You can upgrade your trade book capacity by 10 slots for $30,000.</p>
+                            <button id="upgrade-btn" class="action-btn">Upgrade ($30,000)</button>
+                        </div>
+                        <button id="back-from-trading-app-btn" class="action-btn">Back to Main Menu</button>
+                    </div>
+
+                    <!-- Darkweb -->
+                    <div id="darkweb" class="action-screen hidden">
+                        <div class="action-header">Darkweb Hacking Facility</div>
+                        <div class="action-content">
+                            <p>Welcome to the Darkweb Hacking Facility.</p>
+                            <p>You can find information and small cash rewards here, but it may affect your health.</p>
+                            <p>You can visit the darkweb up to 3 times per day.</p>
+                            <p>Visits today: <span id="darkweb-visits"></span>/3</p>
+                            <button id="darkweb-btn" class="action-btn">Access Darkweb</button>
+                        </div>
+                        <button id="back-from-darkweb-btn" class="action-btn">Back to Main Menu</button>
+                    </div>
+
+                    <!-- High Scores -->
+                    <div id="high-scores" class="action-screen hidden">
+                        <div class="action-header">Leaderboard</div>
+                        <div class="action-content">
+                            <div id="high-scores-list" class="high-scores-list"></div>
+                        </div>
+                        <button id="back-from-high-scores-btn" class="action-btn">Back to Main Menu</button>
+                    </div>
+
+                    <!-- Help -->
+                    <div id="help" class="action-screen hidden">
+                        <div class="action-header">Help</div>
+                        <div class="action-content">
+                            <h3>Game Objective:</h3>
+                            <p>Make as much money as possible in 40 days while maintaining health and rep.</p>
+                            
+                            <h3>Game Mechanics:</h3>
+                            <ol>
+                                <li>Each 'Next Day' action advances time by one day</li>
+                                <li>You can buy and sell stocks to make money</li>
+                                <li>Stock prices fluctuate randomly each day</li>
+                                <li>Random events may affect your health, reputation, and finances</li>
+                                <li>You can deposit/withdraw money and repay loans at the Bank</li>
+                                <li>Visit the Hospital to restore health ($200 copay + $10,000 per health point)</li>
+                                <li>Use Robinwood Trading App to increase your trade book capacity (10 slots for $30,000)</li>
+                                <li>Visit the Darkweb for information and small cash rewards</li>
+                                <li>Visit your Student Loan Broker to repay debt</li>
+                            </ol>
+                            
+                            <h3>Game End Conditions:</h3>
+                            <ol>
+                                <li>40 days are over</li>
+                                <li>Health drops to 0</li>
+                            </ol>
+                            
+                            <p>Good luck!</p>
+                        </div>
+                        <button id="back-from-help-btn" class="action-btn">Back to Main Menu</button>
+                    </div>
+
+                    <!-- Game Over -->
+                    <div id="game-over" class="action-screen hidden">
+                        <div class="action-header">Game Over</div>
+                        <div class="action-content">
+                            <div id="game-over-message"></div>
+                            <div id="game-over-high-scores" class="high-scores-list"></div>
+                            <div id="net-worth-chart" class="net-worth-chart"></div>
+                        </div>
+                        <button id="new-game-btn" class="action-btn">Start New Game</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
