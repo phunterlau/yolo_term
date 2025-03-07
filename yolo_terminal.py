@@ -90,7 +90,7 @@ def main():
             player.days_left -= 1
             
             # Log travel event
-            logger.log_next_day(player)
+            logger.log_next_day(player, stock_manager)
             
             # Update stock prices
             stock_manager.update_prices()
@@ -151,7 +151,7 @@ def main():
             ui.show_available_stocks(stock_manager, player, day_manager)
             
             # Log player status after next day
-            logger.log_player_status(player)
+            logger.log_player_status(player, stock_manager)
             
         elif choice == "buy":
             while True:
@@ -227,7 +227,11 @@ def main():
             high_scores.add_score(player.name, final_score, player.health, player.fame)
             high_scores.show(ui)
             # Log game end
-            logger.log_game_end(player, "DAYS_OVER", final_score)
+            logger.log_game_end(player, "DAYS_OVER", final_score, stock_manager)
+            
+            # Show net worth chart
+            ui.show_net_worth_chart(logger.get_net_worth_history())
+            
             game_running = False
         
         # Check if player is dead
@@ -236,7 +240,11 @@ def main():
             # Calculate final score
             final_score = player.cash + player.bank_savings - player.debt
             # Log game end
-            logger.log_game_end(player, "HEALTH_ZERO", final_score)
+            logger.log_game_end(player, "HEALTH_ZERO", final_score, stock_manager)
+            
+            # Show net worth chart
+            ui.show_net_worth_chart(logger.get_net_worth_history())
+            
             game_running = False
     
     ui.show_message("Thanks for playing Yolo Terminal!", player, stock_manager, day_manager)

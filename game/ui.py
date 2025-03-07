@@ -746,3 +746,15 @@ class UI:
         ).ask()
         
         return result if result is not None else False
+    
+    def show_net_worth_chart(self, net_worth_history: List[Dict[str, Any]]) -> None:
+        """
+        Display an ASCII art line chart of the player's net worth over time.
+        
+        Args:
+            net_worth_history: List of daily stats dictionaries
+        """
+        from game.chart import Chart
+        
+        chart = Chart()
+        chart.show_net_worth_chart(net_worth_history, self.clear_screen)
