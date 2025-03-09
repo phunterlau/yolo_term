@@ -12,6 +12,7 @@ body {
     background-color: #000;
     color: #fff;
     line-height: 1.6;
+    font-size: 16px;
 }
 
 button {
@@ -23,6 +24,7 @@ button {
     margin: 5px;
     font-weight: bold;
     transition: background-color 0.3s;
+    border-radius: 4px;
 }
 
 button:hover {
@@ -35,6 +37,7 @@ input {
     border: 1px solid #0066cc;
     padding: 8px;
     margin: 5px 0;
+    border-radius: 4px;
 }
 
 input[type="number"] {
@@ -50,7 +53,30 @@ input[type="number"] {
 #app {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 10px;
+    width: 100%;
+}
+
+/* For mobile devices */
+@media (max-width: 768px) {
+    body {
+        font-size: 14px;
+    }
+    
+    button {
+        padding: 10px 16px; /* Larger touch target */
+        margin: 6px 3px;
+        width: 100%; /* Full width buttons on mobile */
+    }
+    
+    input[type="number"] {
+        width: 100%;
+        max-width: 200px;
+    }
+    
+    #app {
+        padding: 5px;
+    }
 }
 
 /* Terminal Window */
@@ -61,6 +87,7 @@ input[type="number"] {
     overflow: hidden;
     margin-bottom: 20px;
     box-shadow: 0 0 20px rgba(0, 102, 204, 0.5);
+    width: 100%;
 }
 
 /* Terminal Header */
@@ -81,6 +108,17 @@ input[type="number"] {
 /* Terminal Content */
 .terminal-content {
     padding: 20px;
+}
+
+@media (max-width: 768px) {
+    .terminal-header h1 {
+        font-size: 20px;
+        letter-spacing: 1px;
+    }
+    
+    .terminal-content {
+        padding: 10px;
+    }
 }
 
 /* Welcome Screen */
@@ -116,16 +154,20 @@ input[type="number"] {
     padding: 10px;
     background-color: #001a33;
     border: 1px solid #0066cc;
+    border-radius: 4px;
 }
 
 .status-row {
     display: flex;
     justify-content: space-between;
     margin-bottom: 5px;
+    flex-wrap: wrap; /* Allow items to wrap */
 }
 
 .status-row span {
     flex: 1;
+    padding: 0 5px;
+    min-width: 33%; /* Each item takes at least 1/3 of the width */
 }
 
 /* Portfolio Display */
@@ -144,6 +186,7 @@ input[type="number"] {
 
 .portfolio-item {
     margin-bottom: 5px;
+    word-break: break-word; /* Allow long stock names to wrap */
 }
 
 /* Headline */
@@ -152,12 +195,14 @@ input[type="number"] {
     padding: 10px;
     margin-bottom: 10px;
     border: 1px solid #0066cc;
+    border-radius: 4px;
     font-style: italic;
     font-weight: bold;
     text-align: center;
     letter-spacing: 0.5px;
     overflow: hidden;
     white-space: nowrap;
+    text-overflow: ellipsis; /* Add ellipsis for overflowing text */
     position: relative;
     animation: flipBoard 0.5s ease-in-out;
 }
@@ -170,6 +215,34 @@ input[type="number"] {
     100% {
         transform: rotateX(0deg);
         opacity: 1;
+    }
+}
+
+/* Mobile screens */
+@media (max-width: 768px) {
+    .status-row {
+        margin-bottom: 10px;
+    }
+    
+    .status-row span {
+        min-width: 50%; /* Each item takes 1/2 of the width (2 columns) */
+        margin-bottom: 5px;
+    }
+    
+    .portfolio-items {
+        padding-left: 10px;
+    }
+    
+    .portfolio-item {
+        font-size: 13px;
+        line-height: 1.4;
+    }
+    
+    /* For mobile, allow headline to wrap */
+    .headline {
+        white-space: normal;
+        font-size: 14px;
+        padding: 8px;
     }
 }
 
@@ -187,6 +260,7 @@ input[type="number"] {
     margin-bottom: 15px;
     border: 1px solid #0066cc;
     white-space: pre-line;
+    border-radius: 4px;
 }
 
 /* News Reports */
@@ -195,6 +269,7 @@ input[type="number"] {
     padding: 15px;
     margin-bottom: 15px;
     border: 1px solid #0066cc;
+    border-radius: 4px;
 }
 
 .news-header {
@@ -203,6 +278,7 @@ input[type="number"] {
     margin-bottom: 10px;
     background-color: #000;
     padding: 5px;
+    border-radius: 3px;
 }
 
 .news-content {
@@ -225,6 +301,7 @@ input[type="number"] {
     padding: 15px;
     margin-bottom: 15px;
     border: 1px solid #0066cc;
+    border-radius: 4px;
 }
 
 .stocks-header {
@@ -238,9 +315,10 @@ input[type="number"] {
 
 .stock-item {
     margin-bottom: 5px;
-    padding: 5px;
+    padding: 8px;
     border: 1px solid transparent;
     cursor: pointer;
+    border-radius: 3px;
 }
 
 .stock-item:hover {
@@ -257,6 +335,7 @@ input[type="number"] {
 .main-menu {
     background-color: #002b4d;
     padding: 15px;
+    border-radius: 4px;
 }
 
 .menu-header {
@@ -266,18 +345,113 @@ input[type="number"] {
 
 .menu-options {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: auto;
     gap: 10px;
+}
+
+/* Specific button positioning */
+.menu-btn[data-action="next_day"] {
+    grid-column: 1;
+    grid-row: 1;
+    background-color: #cc5500; /* Dark orange */
+}
+
+.menu-btn[data-action="next_day"]:hover {
+    background-color: #ff6600; /* Lighter orange on hover */
+}
+
+.menu-btn[data-action="buy"] {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.menu-btn[data-action="sell"] {
+    grid-column: 3;
+    grid-row: 1;
+}
+
+.menu-btn[data-action="bank"] {
+    grid-column: 1;
+    grid-row: 2;
+}
+
+.menu-btn[data-action="hospital"] {
+    grid-column: 2;
+    grid-row: 2;
+}
+
+.menu-btn[data-action="broker"] {
+    grid-column: 3;
+    grid-row: 2;
+}
+
+.menu-btn[data-action="trading_app"] {
+    grid-column: 1;
+    grid-row: 3;
+}
+
+.menu-btn[data-action="darkweb"] {
+    grid-column: 2;
+    grid-row: 3;
+}
+
+.menu-btn[data-action="high_scores"] {
+    grid-column: 3;
+    grid-row: 3;
+}
+
+.menu-btn[data-action="help"] {
+    grid-column: 1;
+    grid-row: 4;
+}
+
+.menu-btn[data-action="quit"] {
+    grid-column: 2;
+    grid-row: 4;
+    /* Remove the grid-column-end property to make it the same size as other buttons */
+}
+
+.menu-btn[data-action="empty"] {
+    grid-column: 3;
+    grid-row: 4;
+    visibility: hidden; /* Hidden button to maintain grid layout */
 }
 
 .menu-btn {
     width: 100%;
 }
 
+@media (max-width: 768px) {
+    .main-content {
+        padding: 8px;
+    }
+    
+    .message-display {
+        padding: 10px;
+        font-size: 14px;
+    }
+    
+    .news-reports, .available-stocks {
+        padding: 10px;
+    }
+    
+    .news-item {
+        font-size: 13px;
+    }
+    
+    .stock-item {
+        padding: 10px 5px;
+        margin-bottom: 8px;
+        font-size: 13px;
+    }
+}
+
 /* Action Screens */
 .action-screen {
     background-color: #002b4d;
     padding: 15px;
+    border-radius: 4px;
 }
 
 .action-header {
@@ -285,7 +459,8 @@ input[type="number"] {
     margin-bottom: 15px;
     text-align: center;
     background-color: #004080;
-    padding: 5px;
+    padding: 8px;
+    border-radius: 3px;
 }
 
 .action-content {
@@ -307,6 +482,7 @@ input[type="number"] {
     background-color: #003366;
     padding: 15px;
     border: 1px solid #0066cc;
+    border-radius: 4px;
 }
 
 .bank-action h3 {
@@ -316,11 +492,13 @@ input[type="number"] {
 /* High Scores */
 .high-scores-list {
     width: 100%;
+    overflow-x: auto; /* Allow horizontal scrolling on small screens */
 }
 
 .high-scores-list table {
     width: 100%;
     border-collapse: collapse;
+    min-width: 400px; /* Ensure table doesn't get too small */
 }
 
 .high-scores-list th, .high-scores-list td {
@@ -339,6 +517,88 @@ input[type="number"] {
     padding: 15px;
     background-color: #003366;
     border: 1px solid #0066cc;
+    border-radius: 4px;
+}
+
+/* Chart Screen */
+.chart-container {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.chart-container h2 {
+    margin-bottom: 10px;
+    color: #00cc00;
+}
+
+.chart-container h3 {
+    margin-bottom: 20px;
+    color: #ffcc00;
+}
+
+.chart-container canvas {
+    max-width: 100%;
+    height: auto;
+    margin: 0 auto;
+    display: block;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+}
+
+.chart-container p {
+    margin-top: 15px;
+    text-align: left;
+    padding: 10px;
+    background-color: #002b4d;
+    border-radius: 4px;
+}
+
+/* Share Buttons */
+.share-buttons {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+    gap: 15px;
+}
+
+.share-btn {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #1da1f2; /* Twitter blue */
+    border: none;
+    border-radius: 30px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.share-btn:hover {
+    opacity: 0.9;
+}
+
+#share-twitter {
+    background-color: #1da1f2; /* Twitter blue */
+}
+
+#share-linkedin {
+    background-color: #0077b5; /* LinkedIn blue */
+}
+
+@media (max-width: 768px) {
+    .share-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .share-btn {
+        width: 100%;
+        padding: 12px 20px;
+    }
+    
+    .chart-container canvas {
+        width: 100%;
+    }
 }
 
 /* Buy/Sell Controls */
@@ -347,6 +607,54 @@ input[type="number"] {
     padding: 15px;
     background-color: #003366;
     border: 1px solid #0066cc;
+    border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+    .action-screen {
+        padding: 10px;
+    }
+    
+    .action-header {
+        padding: 6px;
+        font-size: 16px;
+    }
+    
+    .action-content {
+        font-size: 14px;
+    }
+    
+    .bank-actions {
+        gap: 10px;
+    }
+    
+    .bank-action {
+        padding: 10px;
+    }
+    
+    .bank-action h3 {
+        font-size: 16px;
+    }
+    
+    .high-scores-list th, .high-scores-list td {
+        padding: 6px;
+        font-size: 13px;
+    }
+    
+    .buy-controls, .sell-controls {
+        padding: 10px;
+    }
+    
+    /* Make input fields and buttons more touch-friendly */
+    .action-screen input[type="number"] {
+        height: 40px;
+        font-size: 16px;
+    }
+    
+    .action-screen button {
+        height: 44px;
+        font-size: 15px;
+    }
 }
 
 /* Color Classes */
@@ -372,16 +680,87 @@ input[type="number"] {
     font-weight: bold;
 }
 
+/* Debt Warning */
+.debt-warning {
+    color: #ff3333;
+    font-weight: bold;
+}
+
+/* News Agency Colors */
+.agency-cnn {
+    color: #cc0000; /* Red */
+    font-weight: bold;
+}
+
+.agency-fox {
+    color: #0066cc; /* Blue */
+    font-weight: bold;
+}
+
+.agency-cnbc {
+    color: #0099cc; /* Blue */
+    font-weight: bold;
+}
+
+.agency-wsj {
+    color: #666666; /* Gray */
+    font-weight: bold;
+}
+
+.agency-bbc {
+    color: #cc0000; /* Red */
+    font-weight: bold;
+}
+
+.agency-bloomberg {
+    color: #0066cc; /* Blue */
+    font-weight: bold;
+}
+
+.agency-reuters {
+    color: #ff9900; /* Orange */
+    font-weight: bold;
+}
+
+.agency-ap {
+    color: #ffffff; /* White */
+    font-weight: bold;
+}
+
+.agency-nyt {
+    color: #cccccc; /* Light Gray */
+    font-weight: bold;
+}
+
+.agency-default {
+    color: #ffffff; /* White */
+    font-weight: bold;
+}
+
 /* Responsive Adjustments */
 @media (max-width: 768px) {
-    .status-row {
-        flex-direction: column;
-    }
-    
+    /* Keep the same grid layout but adjust for mobile */
     .menu-options {
-        grid-template-columns: 1fr;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: auto;
+        gap: 6px;
     }
     
+    /* Make buttons more touch-friendly */
+    .menu-btn {
+        padding: 12px 8px;
+        margin: 2px;
+        font-size: 14px;
+    }
+    
+    /* Highlight the Next Day button */
+    .menu-btn[data-action="next_day"] {
+        background-color: #005cb8;
+        font-weight: bold;
+    }
+    
+    /* Ensure the bank actions are in a single column */
     .bank-actions {
         grid-template-columns: 1fr;
     }

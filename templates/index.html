@@ -119,6 +119,7 @@
                             <button class="menu-btn" data-action="high_scores">View Leaderboard</button>
                             <button class="menu-btn" data-action="help">Help</button>
                             <button class="menu-btn" data-action="quit">Quit Game</button>
+                            <button class="menu-btn" data-action="empty"></button>
                         </div>
                     </div>
 
@@ -281,6 +282,23 @@
                             <div id="net-worth-chart" class="net-worth-chart"></div>
                         </div>
                         <button id="new-game-btn" class="action-btn">Start New Game</button>
+                    </div>
+                    
+                    <!-- Chart Screen -->
+                    <div id="chart-screen" class="screen hidden">
+                        <div class="terminal-window">
+                            <div class="terminal-header">
+                                <h1>TRADING JOURNEY CHART</h1>
+                            </div>
+                            <div class="terminal-content">
+                                <div id="chart-container" class="chart-container"></div>
+                                <div class="share-buttons">
+                                    <button id="share-twitter" class="share-btn">Share on X (Twitter)</button>
+                                    <button id="share-linkedin" class="share-btn">Share on LinkedIn</button>
+                                </div>
+                                <button id="back-from-chart-btn" class="action-btn">Back to Welcome</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

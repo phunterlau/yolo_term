@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YOLO Terminal Chart Demo</title>
+    <style>
+        /* Global Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        body {
+            background-color: #000;
+            color: #fff;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        button {
+            cursor: pointer;
+            background-color: #004080;
+            color: white;
+            border: 1px solid #0066cc;
+            padding: 8px 16px;
+            margin: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            border-radius: 4px;
+        }
+
+        button:hover {
+            background-color: #0066cc;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* App Container */
+        #app {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 10px;
+            width: 100%;
+        }
+
+        /* Terminal Window */
+        .terminal-window {
+            background-color: #000;
+            border: 2px solid #0066cc;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: 0 0 20px rgba(0, 102, 204, 0.5);
+            width: 100%;
+        }
+
+        /* Terminal Header */
+        .terminal-header {
+            background-color: #004080;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            border-bottom: 2px solid #0066cc;
+        }
+
+        .terminal-header h1 {
+            margin: 0;
+            font-size: 24px;
+            letter-spacing: 2px;
+        }
+
+        /* Terminal Content */
+        .terminal-content {
+            padding: 20px;
+        }
+
+        /* Chart Screen */
+        .chart-container {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .chart-container h2 {
+            margin-bottom: 10px;
+            color: #00cc00;
+        }
+
+        .chart-container h3 {
+            margin-bottom: 20px;
+            color: #ffcc00;
+        }
+
+        .chart-container canvas {
+            max-width: 100%;
+            height: auto;
+            margin: 0 auto;
+            display: block;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+        }
+
+        .chart-container p {
+            margin-top: 15px;
+            text-align: left;
+            padding: 10px;
+            background-color: #002b4d;
+            border-radius: 4px;
+            color: white;
+        }
+
+        /* Share Buttons */
+        .share-buttons {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            gap: 15px;
+        }
+
+        .share-btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #1da1f2; /* Twitter blue */
+            border: none;
+            border-radius: 30px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .share-btn:hover {
+            opacity: 0.9;
+        }
+
+        #share-twitter {
+            background-color: #1da1f2; /* Twitter blue */
+        }
+
+        #share-linkedin {
+            background-color: #0077b5; /* LinkedIn blue */
+        }
+
+        .action-btn {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Chart Screen -->
+        <div id="chart-screen" class="screen">
+            <div class="terminal-window">
+                <div class="terminal-header">
+                    <h1>TRADING JOURNEY CHART</h1>
+                </div>
+                <div class="terminal-content">
+                    <div id="chart-container" class="chart-container"></div>
+                    <div class="share-buttons">
+                        <button id="share-twitter" class="share-btn">Share on X (Twitter)</button>
+                        <button id="share-linkedin" class="share-btn">Share on LinkedIn</button>
+                    </div>
+                    <button id="back-from-chart-btn" class="action-btn">Back to Welcome</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Synthetic chart data
+        const chartData = {
+            player_name: "TestTrader",
+            final_score: 15000,
+            portfolio_value: 5000,
+            total_assets: 20000,
+            game_completed: true,
+            days_left: 0,
+            net_worth_history: []
+        };
+
+        // Generate synthetic net worth history data
+        for (let day = 1; day <= 40; day++) {
+            // Create a sine wave pattern with some randomness
+            const baseValue = 2000 - 5000; // Starting with -3000 (2000 cash - 5000 debt)
+            const amplitude = 10000; // Range of fluctuation
+            const frequency = 0.1; // How fast the sine wave oscillates
+            
+            // Calculate net worth with sine wave pattern and some randomness
+            const sineComponent = Math.sin(day * frequency) * amplitude;
+            const randomComponent = Math.random() * 2000 - 1000; // Random value between -1000 and 1000
+            const growthComponent = day * 500; // Linear growth component
+            
+            const netWorth = Math.round(baseValue + sineComponent + randomComponent + growthComponent);
+            
+            // Add to history
+            chartData.net_worth_history.push({
+                day: day,
+                net_worth: netWorth,
+                cash: Math.round(netWorth * 0.4),
+                bank_savings: Math.round(netWorth * 0.3),
+                debt: Math.max(0, 5000 - day * 100),
+                health: Math.min(100, 70 + Math.floor(Math.random() * 30)),
+                fame: Math.min(100, 60 + Math.floor(Math.random() * 40)),
+                portfolio_value: Math.round(netWorth * 0.3),
+                total_assets: Math.round(netWorth * 1.3)
+            });
+        }
+
+        // Function to draw the chart
+        function drawNetWorthChart(chartData) {
+            const chartContainer = document.getElementById('chart-container');
+            
+            // Clear chart container
+            chartContainer.innerHTML = '';
+            
+            // Create chart title
+            const chartTitle = document.createElement('h2');
+            chartTitle.textContent = `${chartData.player_name}'s Trading Journey`;
+            chartContainer.appendChild(chartTitle);
+            
+            // Create chart subtitle
+            const chartSubtitle = document.createElement('h3');
+            chartSubtitle.textContent = `Final Score: $${chartData.final_score}`;
+            chartContainer.appendChild(chartSubtitle);
+            
+            // Create chart
+            const chartDiv = document.createElement('div');
+            chartDiv.className = 'net-worth-chart';
+            
+            // Create a simple chart visualization
+            const chartCanvas = document.createElement('canvas');
+            chartCanvas.width = 800;
+            chartCanvas.height = 400;
+            chartDiv.appendChild(chartCanvas);
+            
+            // Draw chart
+            const ctx = chartCanvas.getContext('2d');
+            
+            // Set background
+            ctx.fillStyle = '#f5f5f5';
+            ctx.fillRect(0, 0, chartCanvas.width, chartCanvas.height);
+            
+            // Draw grid
+            ctx.strokeStyle = '#ddd';
+            ctx.lineWidth = 1;
+            
+            // Vertical grid lines
+            for (let i = 0; i <= 10; i++) {
+                const x = i * (chartCanvas.width / 10);
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, chartCanvas.height);
+                ctx.stroke();
+            }
+            
+            // Horizontal grid lines
+            for (let i = 0; i <= 10; i++) {
+                const y = i * (chartCanvas.height / 10);
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(chartCanvas.width, y);
+                ctx.stroke();
+            }
+            
+            // Find min and max values
+            const netWorthValues = chartData.net_worth_history.map(item => item.net_worth);
+            const minNetWorth = Math.min(...netWorthValues);
+            const maxNetWorth = Math.max(...netWorthValues);
+            const range = maxNetWorth - minNetWorth;
+            
+            // Draw net worth line
+            ctx.strokeStyle = '#007bff';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            chartData.net_worth_history.forEach((item, index) => {
+                const x = (index / (chartData.net_worth_history.length - 1)) * chartCanvas.width;
+                const y = chartCanvas.height - ((item.net_worth - minNetWorth) / range) * chartCanvas.height;
+                
+                if (index === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            });
+            
+            ctx.stroke();
+            
+            // Add points
+            ctx.fillStyle = '#007bff';
+            chartData.net_worth_history.forEach((item, index) => {
+                const x = (index / (chartData.net_worth_history.length - 1)) * chartCanvas.width;
+                const y = chartCanvas.height - ((item.net_worth - minNetWorth) / range) * chartCanvas.height;
+                
+                ctx.beginPath();
+                ctx.arc(x, y, 5, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            
+            // Add labels
+            ctx.fillStyle = '#333';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'center';
+            
+            // X-axis labels (days)
+            for (let i = 0; i <= 40; i += 10) {
+                const x = (i / 40) * chartCanvas.width;
+                ctx.fillText(`Day ${i}`, x, chartCanvas.height - 10);
+            }
+            
+            // Y-axis labels (net worth)
+            ctx.textAlign = 'right';
+            for (let i = 0; i <= 10; i++) {
+                const y = i * (chartCanvas.height / 10);
+                const value = maxNetWorth - (i / 10) * range;
+                ctx.fillText(`$${Math.round(value)}`, 50, y + 5);
+            }
+            
+            chartContainer.appendChild(chartDiv);
+            
+            // Add chart description
+            const chartDesc = document.createElement('p');
+            chartDesc.textContent = `This chart shows your net worth over the 40-day trading period. You started with $2,000 in cash and $5,000 in debt, and ended with a final score of $${chartData.final_score}.`;
+            chartContainer.appendChild(chartDesc);
+        }
+
+        // Configure share buttons
+        document.getElementById('share-twitter').onclick = () => {
+            const shareUrl = window.location.href;
+            const shareText = `I just finished YOLO Terminal with a score of $${chartData.final_score}! Check out my trading journey!`;
+            const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
+            window.open(twitterUrl, '_blank');
+        };
+        
+        document.getElementById('share-linkedin').onclick = () => {
+            const shareUrl = window.location.href;
+            const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`;
+            window.open(linkedInUrl, '_blank');
+        };
+        
+        document.getElementById('back-from-chart-btn').onclick = () => {
+            alert('This would navigate back to the welcome screen in the full game.');
+        };
+
+        // Draw the chart when the page loads
+        window.onload = () => {
+            drawNetWorthChart(chartData);
+        };
+    </script>
+</body>
+</html>

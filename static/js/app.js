@@ -12,7 +12,8 @@ let gameState = {
     message: "",
     netWorthHistory: [],
     selectedStock: null,
-    selectedPortfolioStock: null
+    selectedPortfolioStock: null,
+    newsShown: false  // Flag to track if news has been shown for the current day
 };
 
 // DOM Elements
@@ -128,7 +129,14 @@ const elements = {
     gameOverMessage: document.getElementById('game-over-message'),
     gameOverHighScores: document.getElementById('game-over-high-scores'),
     netWorthChart: document.getElementById('net-worth-chart'),
-    newGameBtn: document.getElementById('new-game-btn')
+    newGameBtn: document.getElementById('new-game-btn'),
+    
+    // Chart Screen
+    chartScreen: document.getElementById('chart-screen'),
+    chartContainer: document.getElementById('chart-container'),
+    shareTwitterBtn: document.getElementById('share-twitter'),
+    shareLinkedInBtn: document.getElementById('share-linkedin'),
+    backFromChartBtn: document.getElementById('back-from-chart-btn')
 };
 
 // API Functions
@@ -403,6 +411,27 @@ const api = {
             alert('Error getting high scores: ' + error.message);
             return [];
         }
+    },
+    
+    // Get chart data
+    getChartData: async (gameId) => {
+        try {
+            // Use token if available, otherwise use gameId
+            const idToUse = gameState.token || gameId;
+            
+            const response = await fetch(`/api/game/${idToUse}/chart`);
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to get chart data');
+            }
+            
+            return await response.json();
+        } catch (error) {
+            console.error('Error getting chart data:', error);
+            alert('Error getting chart data: ' + error.message);
+            return null;
+        }
     }
 };
 
@@ -442,6 +471,13 @@ const ui = {
         elements.currentDay.textContent = gameState.current_day || '';
         elements.cash.textContent = player.cash;
         elements.bankSavings.textContent = player.bank_savings;
+        
+        // Set color for debt - bold red if not zero, normal color otherwise
+        if (player.debt > 0) {
+            elements.debt.className = 'debt-warning'; // Bold red class
+        } else {
+            elements.debt.className = ''; // Normal color
+        }
         elements.debt.textContent = player.debt;
         
         // Set color for health
@@ -478,9 +514,12 @@ const ui = {
         // Update portfolio display
         ui.updatePortfolio();
         
-        // Update headline
+        // Update headline with colored agency name
         if (gameState.headline) {
-            elements.headline.textContent = `[${gameState.headline.agency}] ${gameState.headline.text}`;
+            const agency = gameState.headline.agency;
+            const agencyClass = getAgencyColorClass(agency);
+            const headlineText = `[<span class="${agencyClass}">${agency}</span>] ${gameState.headline.text}`;
+            elements.headline.innerHTML = headlineText;
         }
     },
     
@@ -967,6 +1006,159 @@ const ui = {
         // This is a placeholder for a more sophisticated chart
         // In a real implementation, you might use a library like Chart.js
         console.log('Drawing net worth chart with data:', netWorthHistory);
+    },
+    
+    // Show chart screen
+    showChartScreen: async (gameId) => {
+        // Get chart data
+        const chartData = await api.getChartData(gameId);
+        
+        if (!chartData) {
+            return;
+        }
+        
+        // Clear chart container
+        elements.chartContainer.innerHTML = '';
+        
+        // Create chart title
+        const chartTitle = document.createElement('h2');
+        chartTitle.textContent = `${chartData.player_name}'s Trading Journey`;
+        elements.chartContainer.appendChild(chartTitle);
+        
+        // Create chart subtitle
+        const chartSubtitle = document.createElement('h3');
+        chartSubtitle.textContent = `Final Score: $${chartData.final_score}`;
+        elements.chartContainer.appendChild(chartSubtitle);
+        
+        // Create chart
+        const chartDiv = document.createElement('div');
+        chartDiv.className = 'net-worth-chart';
+        
+        // Create a simple chart visualization
+        const chartCanvas = document.createElement('canvas');
+        chartCanvas.width = 800;
+        chartCanvas.height = 400;
+        chartDiv.appendChild(chartCanvas);
+        
+        // Draw chart
+        const ctx = chartCanvas.getContext('2d');
+        
+        // Set background
+        ctx.fillStyle = '#f5f5f5';
+        ctx.fillRect(0, 0, chartCanvas.width, chartCanvas.height);
+        
+        // Draw grid
+        ctx.strokeStyle = '#ddd';
+        ctx.lineWidth = 1;
+        
+        // Vertical grid lines
+        for (let i = 0; i <= 10; i++) {
+            const x = i * (chartCanvas.width / 10);
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, chartCanvas.height);
+            ctx.stroke();
+        }
+        
+        // Horizontal grid lines
+        for (let i = 0; i <= 10; i++) {
+            const y = i * (chartCanvas.height / 10);
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(chartCanvas.width, y);
+            ctx.stroke();
+        }
+        
+        // Find min and max values
+        const netWorthValues = chartData.net_worth_history.map(item => item.net_worth);
+        const minNetWorth = Math.min(...netWorthValues);
+        const maxNetWorth = Math.max(...netWorthValues);
+        const range = maxNetWorth - minNetWorth;
+        
+        // Draw net worth line
+        ctx.strokeStyle = '#007bff';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        
+        chartData.net_worth_history.forEach((item, index) => {
+            const x = (index / (chartData.net_worth_history.length - 1)) * chartCanvas.width;
+            const y = chartCanvas.height - ((item.net_worth - minNetWorth) / range) * chartCanvas.height;
+            
+            if (index === 0) {
+                ctx.moveTo(x, y);
+            } else {
+                ctx.lineTo(x, y);
+            }
+        });
+        
+        ctx.stroke();
+        
+        // Add points
+        ctx.fillStyle = '#007bff';
+        chartData.net_worth_history.forEach((item, index) => {
+            const x = (index / (chartData.net_worth_history.length - 1)) * chartCanvas.width;
+            const y = chartCanvas.height - ((item.net_worth - minNetWorth) / range) * chartCanvas.height;
+            
+            ctx.beginPath();
+            ctx.arc(x, y, 5, 0, Math.PI * 2);
+            ctx.fill();
+        });
+        
+        // Add labels
+        ctx.fillStyle = '#333';
+        ctx.font = '14px Arial';
+        ctx.textAlign = 'center';
+        
+        // X-axis labels (days)
+        for (let i = 0; i <= 40; i += 10) {
+            const x = (i / 40) * chartCanvas.width;
+            ctx.fillText(`Day ${i}`, x, chartCanvas.height - 10);
+        }
+        
+        // Y-axis labels (net worth)
+        ctx.textAlign = 'right';
+        for (let i = 0; i <= 10; i++) {
+            const y = i * (chartCanvas.height / 10);
+            const value = maxNetWorth - (i / 10) * range;
+            ctx.fillText(`$${Math.round(value)}`, 50, y + 5);
+        }
+        
+        elements.chartContainer.appendChild(chartDiv);
+        
+        // Add chart description
+        const chartDesc = document.createElement('p');
+        chartDesc.textContent = `This chart shows your net worth over the 40-day trading period. You started with $2,000 in cash and $5,000 in debt, and ended with a final score of $${chartData.final_score}.`;
+        elements.chartContainer.appendChild(chartDesc);
+        
+        // Show share buttons only if game is completed
+        if (chartData.game_completed) {
+            // Configure share buttons
+            const shareUrl = window.location.href;
+            const shareText = `I just finished YOLO Terminal with a score of $${chartData.final_score}! Check out my trading journey!`;
+            
+            // Twitter share
+            elements.shareTwitterBtn.onclick = () => {
+                const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
+                window.open(twitterUrl, '_blank');
+            };
+            
+            // LinkedIn share
+            elements.shareLinkedInBtn.onclick = () => {
+                const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`;
+                window.open(linkedInUrl, '_blank');
+            };
+            
+            // Show share buttons
+            elements.shareTwitterBtn.style.display = 'inline-block';
+            elements.shareLinkedInBtn.style.display = 'inline-block';
+        } else {
+            // Hide share buttons if game is not completed
+            elements.shareTwitterBtn.style.display = 'none';
+            elements.shareLinkedInBtn.style.display = 'none';
+        }
+        
+        // Show chart screen
+        ui.showScreen('chart-screen');
     }
 };
 
@@ -980,10 +1172,18 @@ const game = {
         
         if (token) {
             // Try to load the game with the token
-            api.getGame(token).then(data => {
+            api.getGame(token).then(async data => {
                 if (data) {
                     game.loadGameState(data);
-                    ui.showScreen('game-screen');
+                    
+                    // Check if game is completed (days_left <= 0 or health <= 0)
+                    if (data.player.days_left <= 0 || data.player.health <= 0) {
+                        // Show chart screen
+                        await ui.showChartScreen(token);
+                    } else {
+                        // Show game screen
+                        ui.showScreen('game-screen');
+                    }
                 } else {
                     // If the game couldn't be loaded, show the welcome screen
                     ui.showScreen('welcome-screen');
@@ -1032,6 +1232,9 @@ const game = {
                         const data = await api.nextDay(gameState.gameId);
                         
                         if (data) {
+                            // Reset the newsShown flag when advancing to the next day
+                            gameState.newsShown = false;
+                            
                             game.loadGameState(data);
                             
                             // Check if game is over
@@ -1040,8 +1243,12 @@ const game = {
                                 return;
                             }
                             
-                            // Always show available stocks first
-                            ui.showAvailableStocks();
+                            // Show news reports first if any, then available stocks
+                            if (data.news_reports && data.news_reports.length > 0) {
+                                ui.showNewsReports();
+                            } else {
+                                ui.showAvailableStocks();
+                            }
                         }
                         break;
                     
@@ -1093,19 +1300,23 @@ const game = {
         // News reports
         elements.closeNewsBtn.addEventListener('click', () => {
             elements.newsReports.classList.add('hidden');
-            ui.showMainMenu();
+            
+            // Show available stocks if flag is set
+            if (gameState.showStocks) {
+                // Clear the flag to prevent showing stocks again
+                gameState.showStocks = false;
+                
+                // Show available stocks
+                ui.showAvailableStocks();
+            } else {
+                ui.showMainMenu();
+            }
         });
         
         // Available stocks
         elements.closeStocksBtn.addEventListener('click', () => {
             elements.availableStocks.classList.add('hidden');
-            
-            // Show news reports if any after closing available stocks
-            if (gameState.newsReports && gameState.newsReports.length > 0) {
-                ui.showNewsReports();
-            } else {
-                ui.showMainMenu();
-            }
+            ui.showMainMenu();
         });
         
         // Buy stocks
@@ -1125,6 +1336,24 @@ const game = {
             elements.buyAmount.value = maxBuy;
         });
         
+        // Add input validation to ensure integers
+        elements.buyAmount.addEventListener('input', () => {
+            // Remove any non-digit characters
+            elements.buyAmount.value = elements.buyAmount.value.replace(/\D/g, '');
+            
+            // Ensure it's not empty
+            if (elements.buyAmount.value === '') {
+                elements.buyAmount.value = '1';
+            }
+            
+            // Ensure it's within min/max range
+            const value = parseInt(elements.buyAmount.value);
+            const max = parseInt(elements.buyAmount.max);
+            if (value > max) {
+                elements.buyAmount.value = max.toString();
+            }
+        });
+        
         elements.confirmBuyBtn.addEventListener('click', async () => {
             if (!gameState.selectedStock) {
                 alert('Please select a stock to buy.');
@@ -1141,6 +1370,8 @@ const game = {
             const data = await api.buyStocks(gameState.gameId, gameState.selectedStock.id, amount);
             
             if (data) {
+                // Clear the show_stocks flag to prevent showing stocks again
+                data.show_stocks = false;
                 game.loadGameState(data);
                 ui.showMainMenu();
             }
@@ -1172,6 +1403,24 @@ const game = {
             elements.sellAmount.value = gameState.selectedPortfolioStock.quantity;
         });
         
+        // Add input validation to ensure integers
+        elements.sellAmount.addEventListener('input', () => {
+            // Remove any non-digit characters
+            elements.sellAmount.value = elements.sellAmount.value.replace(/\D/g, '');
+            
+            // Ensure it's not empty
+            if (elements.sellAmount.value === '') {
+                elements.sellAmount.value = '1';
+            }
+            
+            // Ensure it's within min/max range
+            const value = parseInt(elements.sellAmount.value);
+            const max = parseInt(elements.sellAmount.max);
+            if (value > max) {
+                elements.sellAmount.value = max.toString();
+            }
+        });
+        
         elements.confirmSellBtn.addEventListener('click', async () => {
             if (!gameState.selectedPortfolioStock) {
                 alert('Please select a stock to sell.');
@@ -1188,6 +1437,8 @@ const game = {
             const data = await api.sellStocks(gameState.gameId, gameState.selectedPortfolioStock.id, amount);
             
             if (data) {
+                // Clear the show_stocks flag to prevent showing stocks again
+                data.show_stocks = false;
                 game.loadGameState(data);
                 ui.showMainMenu();
             }
@@ -1208,6 +1459,60 @@ const game = {
         });
         
         // Bank
+        // Add input validation to ensure integers for deposit amount
+        elements.depositAmount.addEventListener('input', () => {
+            // Remove any non-digit characters
+            elements.depositAmount.value = elements.depositAmount.value.replace(/\D/g, '');
+            
+            // Ensure it's not empty
+            if (elements.depositAmount.value === '') {
+                elements.depositAmount.value = '1';
+            }
+            
+            // Ensure it's within min/max range
+            const value = parseInt(elements.depositAmount.value);
+            const max = parseInt(elements.depositAmount.max);
+            if (value > max) {
+                elements.depositAmount.value = max.toString();
+            }
+        });
+        
+        // Add input validation to ensure integers for withdraw amount
+        elements.withdrawAmount.addEventListener('input', () => {
+            // Remove any non-digit characters
+            elements.withdrawAmount.value = elements.withdrawAmount.value.replace(/\D/g, '');
+            
+            // Ensure it's not empty
+            if (elements.withdrawAmount.value === '') {
+                elements.withdrawAmount.value = '1';
+            }
+            
+            // Ensure it's within min/max range
+            const value = parseInt(elements.withdrawAmount.value);
+            const max = parseInt(elements.withdrawAmount.max);
+            if (value > max) {
+                elements.withdrawAmount.value = max.toString();
+            }
+        });
+        
+        // Add input validation to ensure integers for repay amount
+        elements.repayAmount.addEventListener('input', () => {
+            // Remove any non-digit characters
+            elements.repayAmount.value = elements.repayAmount.value.replace(/\D/g, '');
+            
+            // Ensure it's not empty
+            if (elements.repayAmount.value === '') {
+                elements.repayAmount.value = '1';
+            }
+            
+            // Ensure it's within min/max range
+            const value = parseInt(elements.repayAmount.value);
+            const max = parseInt(elements.repayAmount.max);
+            if (value > max) {
+                elements.repayAmount.value = max.toString();
+            }
+        });
+        
         elements.depositBtn.addEventListener('click', async () => {
             const amount = parseInt(elements.depositAmount.value);
             
@@ -1219,6 +1524,8 @@ const game = {
             const data = await api.bankAction(gameState.gameId, 'deposit', amount);
             
             if (data) {
+                // Clear the show_stocks flag to prevent showing stocks again
+                data.show_stocks = false;
                 game.loadGameState(data);
                 ui.showBank();
             }
@@ -1235,6 +1542,8 @@ const game = {
             const data = await api.bankAction(gameState.gameId, 'withdraw', amount);
             
             if (data) {
+                // Clear the show_stocks flag to prevent showing stocks again
+                data.show_stocks = false;
                 game.loadGameState(data);
                 ui.showBank();
             }
@@ -1271,10 +1580,30 @@ const game = {
         });
         
         elements.backFromHospitalBtn.addEventListener('click', () => {
+            // Don't show available stocks when returning from hospital
+            gameState.show_stocks = false;
             ui.showMainMenu();
         });
         
         // Broker
+        // Add input validation to ensure integers for broker repay amount
+        elements.brokerRepayAmount.addEventListener('input', () => {
+            // Remove any non-digit characters
+            elements.brokerRepayAmount.value = elements.brokerRepayAmount.value.replace(/\D/g, '');
+            
+            // Ensure it's not empty
+            if (elements.brokerRepayAmount.value === '') {
+                elements.brokerRepayAmount.value = '1';
+            }
+            
+            // Ensure it's within min/max range
+            const value = parseInt(elements.brokerRepayAmount.value);
+            const max = parseInt(elements.brokerRepayAmount.max);
+            if (value > max) {
+                elements.brokerRepayAmount.value = max.toString();
+            }
+        });
+        
         elements.brokerRepayBtn.addEventListener('click', async () => {
             const amount = parseInt(elements.brokerRepayAmount.value);
             
@@ -1292,6 +1621,8 @@ const game = {
         });
         
         elements.backFromBrokerBtn.addEventListener('click', () => {
+            // Don't show available stocks when returning from broker
+            gameState.show_stocks = false;
             ui.showMainMenu();
         });
         
@@ -1306,6 +1637,8 @@ const game = {
         });
         
         elements.backFromTradingAppBtn.addEventListener('click', () => {
+            // Don't show available stocks when returning from trading app
+            gameState.show_stocks = false;
             ui.showMainMenu();
         });
         
@@ -1320,21 +1653,32 @@ const game = {
         });
         
         elements.backFromDarkwebBtn.addEventListener('click', () => {
+            // Don't show available stocks when returning from darkweb
+            gameState.show_stocks = false;
             ui.showMainMenu();
         });
         
         // High Scores
         elements.backFromHighScoresBtn.addEventListener('click', () => {
+            // Don't show available stocks when returning from high scores
+            gameState.show_stocks = false;
             ui.showMainMenu();
         });
         
         // Help
         elements.backFromHelpBtn.addEventListener('click', () => {
+            // Don't show available stocks when returning from help
+            gameState.show_stocks = false;
             ui.showMainMenu();
         });
         
         // Game Over
         elements.newGameBtn.addEventListener('click', () => {
+            ui.showScreen('welcome-screen');
+        });
+        
+        // Chart Screen
+        elements.backFromChartBtn.addEventListener('click', () => {
             ui.showScreen('welcome-screen');
         });
     },
@@ -1351,6 +1695,7 @@ const game = {
         gameState.message = data.message;
         gameState.current_day = data.current_day;
         gameState.netWorthHistory = data.net_worth_history;
+        gameState.showStocks = data.show_stocks;
         
         // Update UI
         ui.updatePlayerStatus();
@@ -1358,17 +1703,59 @@ const game = {
         
         // Apply headline animation
         if (data.headline) {
-            const headlineText = `[${data.headline.agency}] ${data.headline.text}`;
+            // Format headline with colored agency name
+            const agency = data.headline.agency;
+            const agencyClass = getAgencyColorClass(agency);
+            const headlineText = `[<span class="${agencyClass}">${agency}</span>] ${data.headline.text}`;
             
             // Reset animation by cloning the element
             const oldHeadline = elements.headline;
             const newHeadline = oldHeadline.cloneNode(false);
-            newHeadline.textContent = headlineText;
+            newHeadline.innerHTML = headlineText; // Use innerHTML to render the HTML
             oldHeadline.parentNode.replaceChild(newHeadline, oldHeadline);
             
             // Update the elements reference
             elements.headline = newHeadline;
         }
+        
+        // Show news reports first if any and not already shown, then available stocks if flag is set
+        if (gameState.newsReports && gameState.newsReports.length > 0 && !gameState.newsShown) {
+            // Set the flag to indicate news has been shown
+            gameState.newsShown = true;
+            ui.showNewsReports();
+        } else if (gameState.showStocks) {
+            // Clear the flag to prevent showing stocks again
+            gameState.showStocks = false;
+            
+            // Show available stocks
+            ui.showAvailableStocks();
+        }
+    }
+};
+
+// Helper function to get color class for news agency
+function getAgencyColorClass(agency) {
+    switch (agency) {
+        case 'CNN':
+            return 'agency-cnn'; // Red
+        case 'FOX':
+            return 'agency-fox'; // Blue
+        case 'CNBC':
+            return 'agency-cnbc'; // Blue
+        case 'WSJ':
+            return 'agency-wsj'; // Black/Gray
+        case 'BBC':
+            return 'agency-bbc'; // Red
+        case 'Bloomberg':
+            return 'agency-bloomberg'; // Blue
+        case 'Reuters':
+            return 'agency-reuters'; // Orange
+        case 'AP':
+            return 'agency-ap'; // Black
+        case 'NYT':
+            return 'agency-nyt'; // Black
+        default:
+            return 'agency-default'; // Default color
     }
 };
 
@@ -1387,13 +1774,15 @@ const updateHeadline = async () => {
             if (data && data.headline) {
                 gameState.headline = data.headline;
                 
-                // Apply animation by removing and re-adding the element
-                const headlineText = `[${data.headline.agency}] ${data.headline.text}`;
+                // Format headline with colored agency name
+                const agency = data.headline.agency;
+                const agencyClass = getAgencyColorClass(agency);
+                const headlineText = `[<span class="${agencyClass}">${agency}</span>] ${data.headline.text}`;
                 
                 // Reset animation by cloning the element
                 const oldHeadline = elements.headline;
                 const newHeadline = oldHeadline.cloneNode(false);
-                newHeadline.textContent = headlineText;
+                newHeadline.innerHTML = headlineText; // Use innerHTML to render the HTML
                 oldHeadline.parentNode.replaceChild(newHeadline, oldHeadline);
                 
                 // Update the elements reference
