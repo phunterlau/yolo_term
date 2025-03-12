@@ -158,6 +158,32 @@ input[type="number"] {
     letter-spacing: 2px;
     font-family: 'Press Start 2P', cursive;
     text-shadow: 0 0 5px rgba(255, 153, 0, 0.7);
+    position: relative; /* For positioning the GitHub link */
+}
+
+/* GitHub Link */
+.github-link {
+    position: absolute;
+    right: 10px;
+    top: 0;
+    color: #ff9900; /* Bloomberg amber */
+    text-decoration: none;
+    font-size: 16px;
+    font-family: 'VT323', monospace;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+}
+
+.github-link:hover {
+    color: #4ade80;
+    text-shadow: 0 0 5px rgba(74, 222, 128, 0.7);
+}
+
+@media (max-width: 768px) {
+    .github-link {
+        font-size: 14px;
+        right: 5px;
+    }
 }
 
 /* Terminal Content */
