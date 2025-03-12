@@ -1,5 +1,100 @@
 // YOLO Terminal Web Interface JavaScript
 
+// Custom terminal-style alert function
+function terminalAlert(message) {
+    // Get popup elements
+    const popup = document.getElementById('terminal-popup');
+    const popupMessage = document.getElementById('terminal-popup-message');
+    const popupOkBtn = document.getElementById('terminal-popup-ok-btn');
+    
+    // Set message
+    popupMessage.textContent = message;
+    
+    // Show popup
+    popup.classList.remove('hidden');
+    
+    // Focus OK button
+    popupOkBtn.focus();
+    
+    // Return a promise that resolves when the OK button is clicked
+    return new Promise(resolve => {
+        popupOkBtn.onclick = () => {
+            popup.classList.add('hidden');
+            resolve();
+        };
+    });
+}
+
+// Custom terminal-style confirm function
+function terminalConfirm(message) {
+    // Create a custom confirm popup
+    const popup = document.createElement('div');
+    popup.className = 'terminal-popup';
+    
+    // Create popup content
+    const popupContent = document.createElement('div');
+    popupContent.className = 'terminal-popup-content';
+    
+    // Create popup header
+    const popupHeader = document.createElement('div');
+    popupHeader.className = 'terminal-popup-header';
+    const popupTitle = document.createElement('h3');
+    popupTitle.textContent = 'CONFIRM ACTION';
+    popupHeader.appendChild(popupTitle);
+    
+    // Create popup body
+    const popupBody = document.createElement('div');
+    popupBody.className = 'terminal-popup-body';
+    const popupMessage = document.createElement('p');
+    popupMessage.textContent = message;
+    popupBody.appendChild(popupMessage);
+    
+    // Create popup footer with Yes/No buttons
+    const popupFooter = document.createElement('div');
+    popupFooter.className = 'terminal-popup-footer';
+    
+    const yesBtn = document.createElement('button');
+    yesBtn.textContent = 'YES';
+    yesBtn.style.marginRight = '10px';
+    
+    const noBtn = document.createElement('button');
+    noBtn.textContent = 'NO';
+    
+    popupFooter.appendChild(yesBtn);
+    popupFooter.appendChild(noBtn);
+    
+    // Assemble popup
+    popupContent.appendChild(popupHeader);
+    popupContent.appendChild(popupBody);
+    popupContent.appendChild(popupFooter);
+    popup.appendChild(popupContent);
+    
+    // Add to document
+    document.body.appendChild(popup);
+    
+    // Focus Yes button
+    yesBtn.focus();
+    
+    // Return a promise that resolves with true or false
+    return new Promise(resolve => {
+        yesBtn.onclick = () => {
+            document.body.removeChild(popup);
+            resolve(true);
+        };
+        
+        noBtn.onclick = () => {
+            document.body.removeChild(popup);
+            resolve(false);
+        };
+    });
+}
+
+// Override the default alert and confirm functions
+window.originalAlert = window.alert;
+window.originalConfirm = window.confirm;
+window.alert = terminalAlert;
+window.confirm = terminalConfirm;
+
 // Game state
 let gameState = {
     gameId: null,
@@ -772,11 +867,22 @@ const ui = {
         elements.hospitalCost.textContent = totalCost;
         elements.healCost.textContent = totalCost;
         
-        // Disable heal button if player has full health or not enough cash
+        // Set up heal button
         if (healthNeeded === 0 || gameState.player.cash < totalCost) {
             elements.healBtn.disabled = true;
+            
+            // Add click event to show message when disabled
+            elements.healBtn.onclick = () => {
+                if (healthNeeded === 0) {
+                    alert("You already have full health!");
+                } else if (gameState.player.cash < totalCost) {
+                    alert(`You don't have enough cash! You need $${totalCost} but only have $${gameState.player.cash}.`);
+                }
+            };
         } else {
             elements.healBtn.disabled = false;
+            // Remove the onclick event when the button is enabled
+            elements.healBtn.onclick = null;
         }
         
         ui.showActionScreen('hospital');
@@ -810,11 +916,18 @@ const ui = {
     showTradingApp: () => {
         elements.tradingAppCapacity.textContent = gameState.player.portfolio_capacity;
         
-        // Disable upgrade button if player doesn't have enough cash
+        // Set up upgrade button
         if (gameState.player.cash < 30000) {
             elements.upgradeBtn.disabled = true;
+            
+            // Add click event to show message when disabled
+            elements.upgradeBtn.onclick = () => {
+                alert(`You don't have enough cash! You need $30,000 but only have $${gameState.player.cash}.`);
+            };
         } else {
             elements.upgradeBtn.disabled = false;
+            // Remove the onclick event when the button is enabled
+            elements.upgradeBtn.onclick = null;
         }
         
         ui.showActionScreen('trading-app');
@@ -903,6 +1016,12 @@ const ui = {
     
     // Show game over
     showGameOver: (gameOverData) => {
+        // Hide main menu and other action screens
+        document.querySelectorAll('.action-screen').forEach(screen => {
+            screen.classList.add('hidden');
+        });
+        elements.mainMenu.classList.add('hidden');
+        
         elements.gameOverMessage.innerHTML = gameState.message;
         
         // Show high scores
@@ -968,7 +1087,7 @@ const ui = {
         if (gameState.netWorthHistory && gameState.netWorthHistory.length > 0) {
             elements.netWorthChart.innerHTML = '';
             
-            // Create a simple chart
+            // Create a chart container
             const chartContainer = document.createElement('div');
             chartContainer.className = 'chart-container';
             
@@ -977,23 +1096,99 @@ const ui = {
             chartTitle.textContent = 'Net Worth History';
             chartContainer.appendChild(chartTitle);
             
-            // Add chart description
-            const chartDesc = document.createElement('p');
-            chartDesc.textContent = 'Your net worth over time:';
-            chartContainer.appendChild(chartDesc);
+            // Create canvas for chart
+            const chartCanvas = document.createElement('canvas');
+            chartCanvas.width = 600;
+            chartCanvas.height = 300;
+            chartContainer.appendChild(chartCanvas);
             
-            // Add chart data
-            const chartData = document.createElement('pre');
-            chartData.className = 'chart-data';
+            // Draw chart
+            const ctx = chartCanvas.getContext('2d');
             
-            // Format chart data
-            let chartText = '';
-            gameState.netWorthHistory.forEach(data => {
-                chartText += `Day ${data.day}: $${data.net_worth}\n`;
+            // Set background
+            ctx.fillStyle = '#f5f5f5';
+            ctx.fillRect(0, 0, chartCanvas.width, chartCanvas.height);
+            
+            // Draw grid
+            ctx.strokeStyle = '#ddd';
+            ctx.lineWidth = 1;
+            
+            // Vertical grid lines
+            for (let i = 0; i <= 10; i++) {
+                const x = i * (chartCanvas.width / 10);
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, chartCanvas.height);
+                ctx.stroke();
+            }
+            
+            // Horizontal grid lines
+            for (let i = 0; i <= 10; i++) {
+                const y = i * (chartCanvas.height / 10);
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(chartCanvas.width, y);
+                ctx.stroke();
+            }
+            
+            // Find min and max values
+            const netWorthValues = gameState.netWorthHistory.map(item => item.net_worth);
+            const minNetWorth = Math.min(...netWorthValues);
+            const maxNetWorth = Math.max(...netWorthValues);
+            const range = maxNetWorth - minNetWorth;
+            
+            // Draw net worth line
+            ctx.strokeStyle = '#007bff';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            gameState.netWorthHistory.forEach((item, index) => {
+                const x = (index / (gameState.netWorthHistory.length - 1)) * chartCanvas.width;
+                const y = chartCanvas.height - ((item.net_worth - minNetWorth) / range) * chartCanvas.height;
+                
+                if (index === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
             });
             
-            chartData.textContent = chartText;
-            chartContainer.appendChild(chartData);
+            ctx.stroke();
+            
+            // Add points
+            ctx.fillStyle = '#007bff';
+            gameState.netWorthHistory.forEach((item, index) => {
+                const x = (index / (gameState.netWorthHistory.length - 1)) * chartCanvas.width;
+                const y = chartCanvas.height - ((item.net_worth - minNetWorth) / range) * chartCanvas.height;
+                
+                ctx.beginPath();
+                ctx.arc(x, y, 5, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            
+            // Add labels
+            ctx.fillStyle = '#333';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+            
+            // X-axis labels (days)
+            for (let i = 0; i <= 40; i += 10) {
+                const x = (i / 40) * chartCanvas.width;
+                ctx.fillText(`Day ${i}`, x, chartCanvas.height - 10);
+            }
+            
+            // Y-axis labels (net worth)
+            ctx.textAlign = 'right';
+            for (let i = 0; i <= 10; i++) {
+                const y = i * (chartCanvas.height / 10);
+                const value = maxNetWorth - (i / 10) * range;
+                ctx.fillText(`$${Math.round(value)}`, 50, y + 5);
+            }
+            
+            // Add chart description
+            const chartDesc = document.createElement('p');
+            chartDesc.textContent = `This chart shows your net worth over the 40-day trading period. You started with $2,000 in cash and $5,000 in debt, and ended with a final score of $${gameOverData.final_score}.`;
+            chartContainer.appendChild(chartDesc);
             
             elements.netWorthChart.appendChild(chartContainer);
         }
@@ -1239,11 +1434,14 @@ const game = {
                             
                             // Check if game is over
                             if (data.game_over) {
+                                // Show game over screen with net worth chart
                                 ui.showGameOver(data);
+                                
+                                // Don't proceed to show news or stocks when game is over
                                 return;
                             }
                             
-                            // Show news reports first if any, then available stocks
+                            // Only show news and stocks if game is not over
                             if (data.news_reports && data.news_reports.length > 0) {
                                 ui.showNewsReports();
                             } else {
@@ -1289,9 +1487,13 @@ const game = {
                         break;
                     
                     case 'quit':
-                        if (confirm('Are you sure you want to quit?')) {
-                            ui.showScreen('welcome-screen');
-                        }
+                        // Use our custom confirm dialog
+                        (async () => {
+                            const confirmed = await confirm('Are you sure you want to quit?');
+                            if (confirmed) {
+                                ui.showScreen('welcome-screen');
+                            }
+                        })();
                         break;
                 }
             });
@@ -1718,7 +1920,14 @@ const game = {
             elements.headline = newHeadline;
         }
         
-        // Show news reports first if any and not already shown, then available stocks if flag is set
+        // Check if game is over (days_left <= 0 or health <= 0)
+        if (data.game_over || data.player.days_left <= 0 || data.player.health <= 0) {
+            // If game is over, show game over screen with net worth chart
+            ui.showGameOver(data);
+            return; // Don't show news or stocks when game is over
+        }
+        
+        // Only show news and stocks if game is not over
         if (gameState.newsReports && gameState.newsReports.length > 0 && !gameState.newsShown) {
             // Set the flag to indicate news has been shown
             gameState.newsShown = true;

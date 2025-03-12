@@ -1,48 +1,105 @@
-/* YOLO Terminal Web Interface Styles */
+/* YOLO Terminal Web Interface Styles - Bloomberg Terminal Retro Style */
+
+/* Import Pixel Fonts */
+@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
 /* Global Styles */
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: 'Courier New', monospace;
+    font-family: 'VT323', monospace;
+    letter-spacing: 0.5px;
 }
 
 body {
     background-color: #000;
-    color: #fff;
-    line-height: 1.6;
-    font-size: 16px;
+    color: #4ade80; /* Modern terminal green - less harsh */
+    line-height: 1.4;
+    font-size: 20px; /* Increased from 18px */
+    position: relative;
+}
+
+/* CRT Scanline Effect */
+body::before {
+    content: "";
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        rgba(18, 16, 16, 0) 50%, 
+        rgba(0, 0, 0, 0.25) 50%
+    );
+    background-size: 100% 4px;
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0.15;
+}
+
+/* CRT Flicker Animation */
+@keyframes flicker {
+    0% { opacity: 0.97; }
+    5% { opacity: 0.95; }
+    10% { opacity: 0.97; }
+    15% { opacity: 0.94; }
+    20% { opacity: 0.98; }
+    25% { opacity: 0.95; }
+    30% { opacity: 0.97; }
+    35% { opacity: 0.96; }
+    40% { opacity: 0.97; }
+    45% { opacity: 0.94; }
+    50% { opacity: 0.98; }
+    55% { opacity: 0.96; }
+    60% { opacity: 0.97; }
+    65% { opacity: 0.95; }
+    70% { opacity: 0.96; }
+    75% { opacity: 0.94; }
+    80% { opacity: 0.98; }
+    85% { opacity: 0.97; }
+    90% { opacity: 0.95; }
+    95% { opacity: 0.96; }
+    100% { opacity: 0.95; }
+}
+
+#app {
+    animation: flicker 5s infinite;
 }
 
 button {
     cursor: pointer;
-    background-color: #004080;
-    color: white;
-    border: 1px solid #0066cc;
+    background-color: #000;
+    color: #4ade80;
+    border: 1px solid #4ade80;
     padding: 8px 16px;
     margin: 5px;
-    font-weight: bold;
-    transition: background-color 0.3s;
-    border-radius: 4px;
+    font-weight: normal;
+    transition: all 0.2s;
+    border-radius: 0;
+    font-size: 22px; /* Increased from 20px */
+    text-transform: uppercase;
 }
 
 button:hover {
-    background-color: #0066cc;
+    background-color: #4ade80;
+    color: #000;
 }
 
 input {
-    background-color: #001a33;
-    color: white;
-    border: 1px solid #0066cc;
+    background-color: #000;
+    color: #4ade80;
+    border: 1px solid #4ade80;
     padding: 8px;
     margin: 5px 0;
-    border-radius: 4px;
+    border-radius: 0;
+    font-size: 20px; /* Increased from 18px */
 }
 
 input[type="number"] {
     width: 120px;
-    font-size: 16px;
 }
 
 .hidden {
@@ -59,10 +116,6 @@ input[type="number"] {
 
 /* For mobile devices */
 @media (max-width: 768px) {
-    body {
-        font-size: 14px;
-    }
-    
     button {
         padding: 10px 16px; /* Larger touch target */
         margin: 6px 3px;
@@ -82,37 +135,39 @@ input[type="number"] {
 /* Terminal Window */
 .terminal-window {
     background-color: #000;
-    border: 2px solid #0066cc;
-    border-radius: 5px;
+    border: 2px solid #4ade80;
     overflow: hidden;
     margin-bottom: 20px;
-    box-shadow: 0 0 20px rgba(0, 102, 204, 0.5);
+    box-shadow: 0 0 20px rgba(74, 222, 128, 0.5);
     width: 100%;
+    position: relative;
 }
 
 /* Terminal Header */
 .terminal-header {
-    background-color: #004080;
-    color: white;
+    background-color: #000;
+    color: #ff9900; /* Bloomberg amber */
     padding: 10px;
     text-align: center;
-    border-bottom: 2px solid #0066cc;
+    border-bottom: 2px solid #4ade80;
 }
 
 .terminal-header h1 {
     margin: 0;
     font-size: 24px;
     letter-spacing: 2px;
+    font-family: 'Press Start 2P', cursive;
+    text-shadow: 0 0 5px rgba(255, 153, 0, 0.7);
 }
 
 /* Terminal Content */
 .terminal-content {
     padding: 20px;
+    position: relative;
 }
 
 @media (max-width: 768px) {
     .terminal-header h1 {
-        font-size: 20px;
         letter-spacing: 1px;
     }
     
@@ -124,25 +179,48 @@ input[type="number"] {
 /* Welcome Screen */
 .welcome-message p {
     margin-bottom: 15px;
+    position: relative;
+    padding-left: 15px;
+}
+
+.welcome-message p::before {
+    content: ">";
+    position: absolute;
+    left: 0;
+    color: #ff9900;
 }
 
 .player-name-input {
     margin: 20px 0;
+    border: 1px solid #4ade80;
+    padding: 15px;
+    background-color: rgba(0, 0, 0, 0.5);
 }
 
 .player-name-input label {
     display: block;
     margin-bottom: 5px;
+    color: #ff9900;
 }
 
 .player-name-input input {
     width: 100%;
     max-width: 300px;
+    border: 1px solid #4ade80;
 }
 
 /* Story Screen */
 .story-content p {
     margin-bottom: 15px;
+    position: relative;
+    padding-left: 15px;
+}
+
+.story-content p::before {
+    content: ">";
+    position: absolute;
+    left: 0;
+    color: #ff9900;
 }
 
 /* Game Screen */
@@ -152,9 +230,9 @@ input[type="number"] {
 
 .status-content {
     padding: 10px;
-    background-color: #001a33;
-    border: 1px solid #0066cc;
-    border-radius: 4px;
+    background-color: #000;
+    border: 1px solid #4ade80;
+    font-family: 'VT323', monospace;
 }
 
 .status-row {
@@ -162,6 +240,12 @@ input[type="number"] {
     justify-content: space-between;
     margin-bottom: 5px;
     flex-wrap: wrap; /* Allow items to wrap */
+    border-bottom: 1px dotted #4ade80;
+    padding-bottom: 3px;
+}
+
+.status-row:last-child {
+    border-bottom: none;
 }
 
 .status-row span {
@@ -173,11 +257,17 @@ input[type="number"] {
 /* Portfolio Display */
 .portfolio-display {
     margin-top: 10px;
+    border: 1px solid #4ade80;
+    padding: 5px;
+    background-color: rgba(0, 0, 0, 0.5);
 }
 
 .portfolio-header {
     font-weight: bold;
     margin-bottom: 5px;
+    color: #ff9900;
+    border-bottom: 1px solid #4ade80;
+    padding-bottom: 3px;
 }
 
 .portfolio-items {
@@ -187,15 +277,22 @@ input[type="number"] {
 .portfolio-item {
     margin-bottom: 5px;
     word-break: break-word; /* Allow long stock names to wrap */
+    position: relative;
+}
+
+.portfolio-item::before {
+    content: ">";
+    position: absolute;
+    left: -15px;
+    color: #4ade80;
 }
 
 /* Headline */
 .headline {
-    background-color: #001a33;
+    background-color: #000;
     padding: 10px;
     margin-bottom: 10px;
-    border: 1px solid #0066cc;
-    border-radius: 4px;
+    border: 1px solid #ff9900;
     font-style: italic;
     font-weight: bold;
     text-align: center;
@@ -204,7 +301,8 @@ input[type="number"] {
     white-space: nowrap;
     text-overflow: ellipsis; /* Add ellipsis for overflowing text */
     position: relative;
-    animation: flipBoard 0.5s ease-in-out;
+    animation: flipBoard 0.5s ease-in-out, marquee 20s linear infinite;
+    color: #ff9900;
 }
 
 @keyframes flipBoard {
@@ -216,6 +314,11 @@ input[type="number"] {
         transform: rotateX(0deg);
         opacity: 1;
     }
+}
+
+@keyframes marquee {
+    0% { text-indent: 100%; }
+    100% { text-indent: -100%; }
 }
 
 /* Mobile screens */
@@ -234,42 +337,49 @@ input[type="number"] {
     }
     
     .portfolio-item {
-        font-size: 13px;
         line-height: 1.4;
     }
     
     /* For mobile, allow headline to wrap */
     .headline {
         white-space: normal;
-        font-size: 14px;
         padding: 8px;
+        animation: flipBoard 0.5s ease-in-out;
     }
 }
 
 /* Main Content Area */
 .main-content {
-    background-color: #001a33;
-    border: 1px solid #0066cc;
+    background-color: #000;
+    border: 1px solid #4ade80;
     padding: 10px;
 }
 
 /* Message Display */
 .message-display {
-    background-color: #002b4d;
+    background-color: #000;
     padding: 15px;
     margin-bottom: 15px;
-    border: 1px solid #0066cc;
+    border: 1px solid #4ade80;
     white-space: pre-line;
-    border-radius: 4px;
+    position: relative;
+}
+
+.message-display::before {
+    content: "SYSTEM:";
+    color: #ff9900;
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
 }
 
 /* News Reports */
 .news-reports {
-    background-color: #002b4d;
+    background-color: #000;
     padding: 15px;
     margin-bottom: 15px;
-    border: 1px solid #0066cc;
-    border-radius: 4px;
+    border: 1px solid #4ade80;
+    border-radius: 0;
 }
 
 .news-header {
@@ -278,7 +388,8 @@ input[type="number"] {
     margin-bottom: 10px;
     background-color: #000;
     padding: 5px;
-    border-radius: 3px;
+    border: 1px solid #4ade80;
+    color: #ff9900;
 }
 
 .news-content {
@@ -288,7 +399,16 @@ input[type="number"] {
 .news-item {
     margin-bottom: 10px;
     padding-bottom: 10px;
-    border-bottom: 1px solid #0066cc;
+    border-bottom: 1px solid #4ade80;
+    position: relative;
+    padding-left: 15px;
+}
+
+.news-item::before {
+    content: ">";
+    position: absolute;
+    left: 0;
+    color: #ff9900;
 }
 
 .news-item:last-child {
@@ -297,16 +417,19 @@ input[type="number"] {
 
 /* Available Stocks */
 .available-stocks {
-    background-color: #002b4d;
+    background-color: #000;
     padding: 15px;
     margin-bottom: 15px;
-    border: 1px solid #0066cc;
-    border-radius: 4px;
+    border: 1px solid #4ade80;
+    border-radius: 0;
 }
 
 .stocks-header {
     font-weight: bold;
     margin-bottom: 10px;
+    color: #ff9900;
+    border-bottom: 1px solid #4ade80;
+    padding-bottom: 3px;
 }
 
 .stocks-list {
@@ -318,29 +441,34 @@ input[type="number"] {
     padding: 8px;
     border: 1px solid transparent;
     cursor: pointer;
-    border-radius: 3px;
+    border-radius: 0;
+    transition: all 0.2s;
 }
 
 .stock-item:hover {
-    border-color: #0066cc;
-    background-color: #003366;
+    border-color: #4ade80;
+    background-color: rgba(74, 222, 128, 0.1);
 }
 
 .stock-item.selected {
-    border-color: #00cc00;
-    background-color: #004d00;
+    border-color: #ff9900;
+    background-color: rgba(255, 153, 0, 0.1);
 }
 
 /* Main Menu */
 .main-menu {
-    background-color: #002b4d;
+    background-color: #000;
     padding: 15px;
-    border-radius: 4px;
+    border: 1px solid #4ade80;
+    border-radius: 0;
 }
 
 .menu-header {
     font-weight: bold;
     margin-bottom: 10px;
+    color: #ff9900;
+    border-bottom: 1px solid #4ade80;
+    padding-bottom: 3px;
 }
 
 .menu-options {
@@ -354,11 +482,14 @@ input[type="number"] {
 .menu-btn[data-action="next_day"] {
     grid-column: 1;
     grid-row: 1;
-    background-color: #cc5500; /* Dark orange */
+    background-color: #000;
+    color: #ff9900;
+    border-color: #ff9900;
 }
 
 .menu-btn[data-action="next_day"]:hover {
-    background-color: #ff6600; /* Lighter orange on hover */
+    background-color: #ff9900;
+    color: #000;
 }
 
 .menu-btn[data-action="buy"] {
@@ -409,7 +540,6 @@ input[type="number"] {
 .menu-btn[data-action="quit"] {
     grid-column: 2;
     grid-row: 4;
-    /* Remove the grid-column-end property to make it the same size as other buttons */
 }
 
 .menu-btn[data-action="empty"] {
@@ -429,7 +559,6 @@ input[type="number"] {
     
     .message-display {
         padding: 10px;
-        font-size: 14px;
     }
     
     .news-reports, .available-stocks {
@@ -437,30 +566,31 @@ input[type="number"] {
     }
     
     .news-item {
-        font-size: 13px;
+        padding-bottom: 8px;
     }
     
     .stock-item {
         padding: 10px 5px;
         margin-bottom: 8px;
-        font-size: 13px;
     }
 }
 
 /* Action Screens */
 .action-screen {
-    background-color: #002b4d;
+    background-color: #000;
     padding: 15px;
-    border-radius: 4px;
+    border: 1px solid #4ade80;
+    border-radius: 0;
 }
 
 .action-header {
     font-weight: bold;
     margin-bottom: 15px;
     text-align: center;
-    background-color: #004080;
+    background-color: #000;
     padding: 8px;
-    border-radius: 3px;
+    border: 1px solid #4ade80;
+    color: #ff9900;
 }
 
 .action-content {
@@ -479,14 +609,17 @@ input[type="number"] {
 }
 
 .bank-action {
-    background-color: #003366;
+    background-color: #000;
     padding: 15px;
-    border: 1px solid #0066cc;
-    border-radius: 4px;
+    border: 1px solid #4ade80;
+    border-radius: 0;
 }
 
 .bank-action h3 {
     margin-bottom: 10px;
+    color: #ff9900;
+    border-bottom: 1px dotted #4ade80;
+    padding-bottom: 3px;
 }
 
 /* High Scores */
@@ -499,25 +632,28 @@ input[type="number"] {
     width: 100%;
     border-collapse: collapse;
     min-width: 400px; /* Ensure table doesn't get too small */
+    border: 1px solid #4ade80;
 }
 
 .high-scores-list th, .high-scores-list td {
     padding: 8px;
     text-align: left;
-    border-bottom: 1px solid #0066cc;
+    border-bottom: 1px solid #4ade80;
 }
 
 .high-scores-list th {
-    background-color: #004080;
+    background-color: #000;
+    color: #ff9900;
+    border-bottom: 2px solid #4ade80;
 }
 
 /* Net Worth Chart */
 .net-worth-chart {
     margin-top: 20px;
     padding: 15px;
-    background-color: #003366;
-    border: 1px solid #0066cc;
-    border-radius: 4px;
+    background-color: #000;
+    border: 1px solid #4ade80;
+    border-radius: 0;
 }
 
 /* Chart Screen */
@@ -528,12 +664,12 @@ input[type="number"] {
 
 .chart-container h2 {
     margin-bottom: 10px;
-    color: #00cc00;
+    color: #4ade80;
 }
 
 .chart-container h3 {
     margin-bottom: 20px;
-    color: #ffcc00;
+    color: #ff9900;
 }
 
 .chart-container canvas {
@@ -541,16 +677,18 @@ input[type="number"] {
     height: auto;
     margin: 0 auto;
     display: block;
-    background-color: #f5f5f5;
-    border-radius: 4px;
+    background-color: #000;
+    border: 1px solid #4ade80;
+    border-radius: 0;
 }
 
 .chart-container p {
     margin-top: 15px;
     text-align: left;
     padding: 10px;
-    background-color: #002b4d;
-    border-radius: 4px;
+    background-color: #000;
+    border: 1px solid #4ade80;
+    border-radius: 0;
 }
 
 /* Share Buttons */
@@ -563,26 +701,39 @@ input[type="number"] {
 
 .share-btn {
     padding: 10px 20px;
-    font-size: 16px;
-    background-color: #1da1f2; /* Twitter blue */
-    border: none;
-    border-radius: 30px;
-    color: white;
+    font-size: 18px;
+    background-color: #000;
+    border: 1px solid #4ade80;
+    border-radius: 0;
+    color: #4ade80;
     font-weight: bold;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: all 0.2s;
 }
 
 .share-btn:hover {
-    opacity: 0.9;
+    background-color: #4ade80;
+    color: #000;
 }
 
 #share-twitter {
-    background-color: #1da1f2; /* Twitter blue */
+    border-color: #1da1f2;
+    color: #1da1f2;
+}
+
+#share-twitter:hover {
+    background-color: #1da1f2;
+    color: #000;
 }
 
 #share-linkedin {
-    background-color: #0077b5; /* LinkedIn blue */
+    border-color: #0077b5;
+    color: #0077b5;
+}
+
+#share-linkedin:hover {
+    background-color: #0077b5;
+    color: #000;
 }
 
 @media (max-width: 768px) {
@@ -605,9 +756,9 @@ input[type="number"] {
 .buy-controls, .sell-controls {
     margin: 15px 0;
     padding: 15px;
-    background-color: #003366;
-    border: 1px solid #0066cc;
-    border-radius: 4px;
+    background-color: #000;
+    border: 1px solid #4ade80;
+    border-radius: 0;
 }
 
 @media (max-width: 768px) {
@@ -621,7 +772,7 @@ input[type="number"] {
     }
     
     .action-content {
-        font-size: 14px;
+        margin-bottom: 12px;
     }
     
     .bank-actions {
@@ -638,7 +789,6 @@ input[type="number"] {
     
     .high-scores-list th, .high-scores-list td {
         padding: 6px;
-        font-size: 13px;
     }
     
     .buy-controls, .sell-controls {
@@ -648,72 +798,55 @@ input[type="number"] {
     /* Make input fields and buttons more touch-friendly */
     .action-screen input[type="number"] {
         height: 40px;
-        font-size: 16px;
     }
     
     .action-screen button {
         height: 44px;
-        font-size: 15px;
     }
 }
 
 /* Color Classes */
 .positive {
-    color: #00cc00;
+    color: #4ade80;
 }
 
 .negative {
-    color: #ff3333;
+    color: #ff5555;
 }
 
 .highlight {
-    color: #ffcc00;
+    color: #ff9900;
 }
 
 .crypto {
-    color: #ffcc00;
+    color: #ff9900;
     font-weight: bold;
 }
 
 .stock {
-    color: #00cc00;
+    color: #4ade80;
     font-weight: bold;
 }
 
 /* Debt Warning */
 .debt-warning {
-    color: #ff3333;
+    color: #ff5555;
     font-weight: bold;
 }
 
 /* News Agency Colors */
-.agency-cnn {
-    color: #cc0000; /* Red */
+.agency-cnn, .agency-bbc {
+    color: #ff5555; /* Red */
     font-weight: bold;
 }
 
-.agency-fox {
-    color: #0066cc; /* Blue */
-    font-weight: bold;
-}
-
-.agency-cnbc {
-    color: #0099cc; /* Blue */
+.agency-fox, .agency-cnbc, .agency-bloomberg {
+    color: #4ade80; /* Green */
     font-weight: bold;
 }
 
 .agency-wsj {
-    color: #666666; /* Gray */
-    font-weight: bold;
-}
-
-.agency-bbc {
-    color: #cc0000; /* Red */
-    font-weight: bold;
-}
-
-.agency-bloomberg {
-    color: #0066cc; /* Blue */
+    color: #aaaaaa; /* Gray */
     font-weight: bold;
 }
 
@@ -722,18 +855,13 @@ input[type="number"] {
     font-weight: bold;
 }
 
-.agency-ap {
+.agency-ap, .agency-default {
     color: #ffffff; /* White */
     font-weight: bold;
 }
 
 .agency-nyt {
     color: #cccccc; /* Light Gray */
-    font-weight: bold;
-}
-
-.agency-default {
-    color: #ffffff; /* White */
     font-weight: bold;
 }
 
@@ -751,12 +879,10 @@ input[type="number"] {
     .menu-btn {
         padding: 12px 8px;
         margin: 2px;
-        font-size: 14px;
     }
     
     /* Highlight the Next Day button */
     .menu-btn[data-action="next_day"] {
-        background-color: #005cb8;
         font-weight: bold;
     }
     
@@ -764,4 +890,107 @@ input[type="number"] {
     .bank-actions {
         grid-template-columns: 1fr;
     }
+}
+
+/* Blinking Cursor Effect */
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+.terminal-content::after {
+    content: "█";
+    display: inline-block;
+    animation: blink 1s step-end infinite;
+    color: #4ade80;
+    margin-left: 2px;
+}
+
+/* Terminal Pop-up Message */
+.terminal-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.terminal-popup-content {
+    width: 90%;
+    max-width: 500px;
+    background-color: #000;
+    border: 2px solid #4ade80;
+    box-shadow: 0 0 20px rgba(74, 222, 128, 0.5);
+    animation: popupAppear 0.3s ease-out;
+}
+
+@keyframes popupAppear {
+    0% {
+        transform: scale(0.7);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.terminal-popup-header {
+    background-color: #000;
+    color: #ff9900;
+    padding: 10px;
+    text-align: center;
+    border-bottom: 2px solid #4ade80;
+}
+
+.terminal-popup-header h3 {
+    margin: 0;
+    font-size: 20px;
+    font-family: 'Press Start 2P', cursive;
+    letter-spacing: 1px;
+}
+
+.terminal-popup-body {
+    padding: 20px;
+    color: #4ade80;
+    font-size: 20px; /* Increased from 18px */
+    position: relative;
+}
+
+.terminal-popup-body::before {
+    content: ">";
+    position: absolute;
+    left: 10px;
+    color: #ff9900;
+}
+
+.terminal-popup-body p {
+    margin: 0;
+    padding-left: 15px;
+}
+
+.terminal-popup-footer {
+    padding: 10px;
+    text-align: center;
+    border-top: 1px solid #4ade80;
+}
+
+.terminal-popup-footer button {
+    background-color: #000;
+    color: #4ade80;
+    border: 1px solid #4ade80;
+    padding: 8px 30px;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.terminal-popup-footer button:hover {
+    background-color: #4ade80;
+    color: #000;
 }
